@@ -97,21 +97,15 @@ with seasonal-distance weights and a proxy prediction for the own month. January
 corresponding month.
 
 For January and July the prediction is assembled as a reference layer plus model deltas. The reference is a prediction file
-for these rows (`artifacts/reference/`, not versioned); the deltas are the differences between the retrained models and the
+for these rows (`artifacts/reference/`); the deltas are the differences between the retrained models and the
 earlier models for the same rows (stack, ADS-B layer D, pool, LIRF physical layer, layer-D second-stage term). They are read
 from precomputed files in `artifacts/stack_inputs/`, which `prc/terms.py` builds. February and June use the retrained model
 chain only.
 
-## Requirements and limits
+## Required inputs
 
-- **Inputs that are not versioned.** `*.parquet` files (raw data, ADS-B extracts, hold-outs, reference files and delta files)
-  are not in the repository. `docs/STAGES.md` lists which stage reads which file.
-- **Fitted models.** `artifacts/base_a_full_final` holds per-component predictions of the full base-A fit, not the fitted
-  models; running `fit` stores the models under `artifacts/models/`.
-- **Delta terms.** The scripts that generate the layer-D second-stage, pooled-Huber and LIRF physical-layer delta terms of
-  January and July are not part of this repository; the terms are read from files.
-- **Daily layer parameters.** `artifacts/daily/params.json` is produced by `python -m prc.daily.cli --fit` from
-  `artifacts/oof/daily/oof_2025.npz`; refit it when the out-of-fold predictions change.
-- **February and June.** The stack combiners and specialists are fitted on January and July 2025 out-of-fold predictions and
-  applied to February and June.
-- **Rules.** The two LIRF post-processing rules use thresholds fixed in code (`prc/layers`), documented in `docs/STAGES.md`.
+- `data/raw/training_2025-*.parquet`, `data/final/final_ranking.parquet`, `data/final/final_submitting.parquet`
+- `data/processed/adsb_surface/` daily ADS-B surface extracts
+- `data/external/aiu_csv/all_pre_departure_delays_{2025,2026}.csv`
+- `artifacts/reference/` and `artifacts/stack_inputs/` parquet files read by `predict.py compose`
+- `artifacts/oof/daily/oof_2025.npz` and `artifacts/daily/params.json` for the daily layer (`train.py daily` regenerates the parameters)
