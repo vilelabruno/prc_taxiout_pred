@@ -93,8 +93,16 @@ def stage_espera(a):
         m('prc.espera_rot.predict', '--pred', ARTIFACTS / 'pre_espera_final.parquet', '--out', ARTIFACTS / 'espera_final.parquet', '--months', '1,2,6,7'),
         m('prc.espera_rot.lirf_predict', '--pred', ARTIFACTS / 'espera_final.parquet', '--out', ARTIFACTS / 'lirf_final.parquet', '--months', '1,2,6,7'),
         m('prc.layers.lirf_night_rule', '--pred', ARTIFACTS / 'lirf_final.parquet', '--out', ARTIFACTS / 'night_final.parquet', '--months', '2,6', '--dose', '0.5'),
-        m('prc.layers.lirf_eco_rule', '--pred', ARTIFACTS / 'night_final.parquet', '--out', ARTIFACTS / 'submission_final.parquet', '--months', '1,2,6,7', '--lo-h', '6', '--hi-h', '14', '--dose', '0.5'),
+        m('prc.layers.lirf_eco_rule', '--pred', ARTIFACTS / 'night_final.parquet', '--out', ARTIFACTS / 'submission_final.parquet', '--months', '1,2,6,7', '--lo-h', '6', '--hi-h', 'inf', '--dose', '0.4'),
     ]
+
+
+def stage_daily_fit(a):
+    return [m('prc.daily.cli', '--fit', '--oof', ARTIFACTS / 'oof' / 'daily' / 'oof_2025.npz', '--oof-col', 'pred', '--dither')]
+
+
+def stage_daily(a):
+    return [m('prc.daily.cli', '--apply', '--pred', ARTIFACTS / 'submission_final.parquet', '--out', ARTIFACTS / 'submission_daily.parquet', '--months', '1,2,6,7', '--dither')]
 
 
 def stage_compose(a):
@@ -132,9 +140,9 @@ def cv_stack(a):
 
 
 TRAIN = {'features': stage_features, 'basea': stage_basea, 'baseb': stage_baseb, 'blend': stage_blend, 'layers': stage_layers,
-         'otimista': stage_otimista, 'v53': stage_v53, 'stack': stage_stack, 'espera': stage_espera, 'stack_full': stage_stack_full}
+         'otimista': stage_otimista, 'v53': stage_v53, 'stack': stage_stack, 'espera': stage_espera, 'stack_full': stage_stack_full, 'daily': stage_daily_fit}
 CV = {'basea': cv_basea, 'baseb': cv_baseb, 'layers': cv_layers, 'otimista': cv_otimista, 'stack': cv_stack, 'espera': cv_espera}
-PREDICT = {'blend': stage_blend, 'compose': stage_compose, 'espera': stage_espera}
+PREDICT = {'blend': stage_blend, 'compose': stage_compose, 'espera': stage_espera, 'daily': stage_daily}
 
 
 def run(table, names, args):

@@ -24,7 +24,9 @@ version (models, out-of-fold predictions, per-component predictions). Large tabu
 4. **Residual specialists** (`prc/espera_rot`): a LightGBM on aircraft rotation, stand-slot and historical stand profiles
    for non-LIRF airports, and a separate LIRF-only specialist.
 5. **Post-processing rules** (`prc/layers/lirf_night_rule.py`, `prc/layers/lirf_eco_rule.py`): fixed rules for LIRF departures
-   without an actual off-block time, applied in a 50/50 blend with the model output.
+   without an actual off-block time, each moving the model output a fixed fraction of the way to `MVT - SCHED`.
+6. **Daily layer** (`prc/daily`): a per-airport, per-day posterior update that uses the published daily total of
+   pre-departure delay as a constraint on the departures of that day.
 
 ## Repository layout
 
@@ -37,6 +39,7 @@ prc/layers              level-2 layers, layer composition, LIRF rules
 prc/otimista            layer D: contexts, leave-month-out validation, application, H_base members
 prc/stack               member table, combiners, neural population, final stack application
 prc/espera_rot          residual specialists (all airports, and LIRF only)
+prc/daily               daily layer: parameter fit, application, constants
 prc/blend.py            v36 blend of the two bases
 prc/compose.py          assembly of the final pre-specialist prediction for the four months
 prc/terms.py            builds delta terms between two versions of a component
@@ -68,6 +71,7 @@ Python 3.11 or newer. CatBoost and LightGBM use CPU; the sequence networks and t
 | `PRC_RANKING`, `PRC_SUBMITTING` | `data/final/...` | ranking and submission template |
 | `PRC_TRAINING_DIR` | `data/raw` | the twelve `training_2025-*.parquet` files |
 | `PRC_SURFACE_DIR` | `data/processed/adsb_surface` | daily ADS-B surface extracts |
+| `PRC_EUROCONTROL_DIR` | `data/external/aiu_csv` | `all_pre_departure_delays_2025.csv`, `all_pre_departure_delays_2026.csv` |
 | `PRC_WORK` | `work/` | intermediates |
 | `PRC_ARTIFACTS` | `artifacts/` | models, out-of-fold predictions, references |
 
@@ -78,13 +82,13 @@ The code reads labels only from the 2025 training files. The ranking files are r
 All entry points accept `--dry-run`, which prints the commands without executing them.
 
 ```
-python scripts/train.py features basea baseb blend layers otimista v53 stack espera
+python scripts/train.py features basea baseb blend layers otimista v53 stack espera daily
 python scripts/cv.py basea baseb layers otimista stack espera
-python scripts/predict.py compose espera
+python scripts/predict.py compose espera daily
 ```
 
 `python scripts/<entry>.py all` runs every stage of that entry point. Stage definitions and the exact commands are in
-`docs/STAGES.md`. The final file is `artifacts/submission_final.parquet`, with columns `MVT_ID_mvt` and `TAXITIME_SEC_mvt`.
+`docs/STAGES.md`. The final file is `artifacts/submission_daily.parquet`, with columns `MVT_ID_mvt` and `TAXITIME_SEC_mvt`.
 
 ## Months and composition
 
@@ -92,39 +96,22 @@ February and June 2026 have no 2025 hold-out of their own, so their layer-D mode
 with seasonal-distance weights and a proxy prediction for the own month. January and July use the 2025 hold-out of the
 corresponding month.
 
-For January and July the prediction is assembled as a reference layer plus model deltas: the reference is a prediction file
-for these rows from an earlier stage of the work (`artifacts/reference/`, not versioned), and the deltas are the differences
-between the retrained models and the earlier models for the same rows (stack, ADS-B layer D, pool, LIRF physical layer, and
-the layer-D second-stage term, all delivered as precomputed delta files; `prc/terms.py` builds them). Corrections to that reference are also delivered as files (`d_reference_corrections`,
-`set_reference_overrides`). February and June use the retrained model chain only.
+For January and July the prediction is assembled as a reference layer plus model deltas. The reference is a prediction file
+for these rows (`artifacts/reference/`, not versioned); the deltas are the differences between the retrained models and the
+earlier models for the same rows (stack, ADS-B layer D, pool, LIRF physical layer, layer-D second-stage term). They are read
+from precomputed files in `artifacts/stack_inputs/`, which `prc/terms.py` builds. February and June use the retrained model
+chain only.
 
-## Validation evidence
+## Requirements and limits
 
-Each stage was compared against the output it replaces, using the original inputs:
-
-| Stage | Result |
-|---|---|
-| Base A assembly (`prc/basea/assemble.py`) | matches a literal transcription of the original mixing rules to 1.5e-11 s |
-| Non-ADS-B layers | identical to the reference implementation (0.0 s over 670,790 rows) |
-| Layer D (S4 and pooled models) | identical to the reference implementation (0.0 s, same eligibility mask) |
-| Stack application | reproduces the earlier stack output exactly (0.0 s over 344,841 rows) |
-| Residual specialist (all airports) | matches within 0.77 s maximum, 0.0076 s RMS |
-| LIRF specialist | matches to 1e-12 s; cross-validated gain (jan/jul) of -8.54 s RMSE at dose 0.5 |
-| Out-of-fold combiner | nested OOF RMSE outside LIRF: 186.39 s against 190.01 s for the hand-built stack |
-
-Leave-month-out validation of layer D and the combiner uses 2025 labels only.
-
-## Reproducibility status and limitations
-
-- **Base A and base B weights.** The versioned artifacts hold the per-component predictions of the full fit
-  (`artifacts/base_a_full_final`), not the fitted models. The current `fit` entry points persist models, so a rerun
-  stores them under `artifacts/models/`.
-- **Base A.** The base A used here is the chain implemented in `prc/basea`. An earlier base-A implementation maintained by a
-  collaborator is not part of this repository, and the first half of the level-1 blend is this chain.
-- **Not versioned inputs.** `*.parquet` files (raw data, ADS-B extracts, hold-outs, reference files and delta files) are
-  not in the repository. `docs/STAGES.md` lists which stage reads which file.
-- **Terms delivered as files.** The generating scripts for the layer-D second-stage, pooled-Huber and LIRF physical-layer delta terms
-  of January/July are not part of this repository.
-- **February/June extrapolation.** The stack combiners and specialists were fitted on January and July 2025 out-of-fold
-  predictions; their behaviour on February and June is extrapolation, and cannot be measured without labels.
-- **Rules.** The two LIRF post-processing rules rest on small samples in 2025 (35 and 43 flights).
+- **Inputs that are not versioned.** `*.parquet` files (raw data, ADS-B extracts, hold-outs, reference files and delta files)
+  are not in the repository. `docs/STAGES.md` lists which stage reads which file.
+- **Fitted models.** `artifacts/base_a_full_final` holds per-component predictions of the full base-A fit, not the fitted
+  models; running `fit` stores the models under `artifacts/models/`.
+- **Delta terms.** The scripts that generate the layer-D second-stage, pooled-Huber and LIRF physical-layer delta terms of
+  January and July are not part of this repository; the terms are read from files.
+- **Daily layer parameters.** `artifacts/daily/params.json` is produced by `python -m prc.daily.cli --fit` from
+  `artifacts/oof/daily/oof_2025.npz`; refit it when the out-of-fold predictions change.
+- **February and June.** The stack combiners and specialists are fitted on January and July 2025 out-of-fold predictions and
+  applied to February and June.
+- **Rules.** The two LIRF post-processing rules use thresholds fixed in code (`prc/layers`), documented in `docs/STAGES.md`.

@@ -8,6 +8,8 @@ Files under `artifacts/`, with size and SHA-256. Groups:
 | `artifacts/models/espera_rot` | 6 | 3.6 |
 | `artifacts/models/hbase` | 11 | 132.9 |
 | `artifacts/models/stack` | 32 | 176.1 |
+| `artifacts/daily` | 1 | 0.0 |
+| `artifacts/oof/daily` | 1 | 1.9 |
 | `artifacts/oof/hbase` | 5 | 13.8 |
 | `artifacts/oof/mlp_member` | 1 | 32.5 |
 | `artifacts/oof/stack` | 1 | 2.8 |
@@ -97,3 +99,5 @@ Files under `artifacts/`, with size and SHA-256. Groups:
 | `artifacts/oof/stack/perm_oof_topk_nonets.npy` | 2755480 | `e41ef63a9eeeebce41ce3c35002463b453b5c51e9464528b3d1b22670f11426d` |
 | `artifacts/reference/stack_old/perm_26_topk_mlp1.npy` | 1379492 | `47b518ef492c7018425df8457db5126f02a6ec0ae83bfd3f8269248588fa41b6` |
 | `artifacts/reference/stack_old/perm_oof_topk_mlp1.npy` | 2755480 | `da0351d6f91ffbcdb226b17f7c14a3701a5dc28a70eb05ac4d6b761ca9b0d60c` |
+| `artifacts/daily/params.json` | 791 | `613301b7fa68e6a30cccc5efdea42faec28f3dd992564878c343840f3122dcb9` |
+| `artifacts/oof/daily/oof_2025.npz` | 1926964 | `f7c0c4b30d599890fbbcf1a4a8672f83e5342bfb6d73e1e07e656a02fd0f7739` |

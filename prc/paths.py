@@ -12,6 +12,7 @@ RANKING = Path(os.environ.get('PRC_RANKING', DATA_ROOT / 'final' / 'final_rankin
 SUBMITTING = Path(os.environ.get('PRC_SUBMITTING', DATA_ROOT / 'final' / 'final_submitting.parquet'))
 TRAINING_DIR = Path(os.environ.get('PRC_TRAINING_DIR', DATA_ROOT / 'raw'))
 SURFACE_DIR = Path(os.environ.get('PRC_SURFACE_DIR', DATA_ROOT / 'processed' / 'adsb_surface'))
+EUROCONTROL_DIR = Path(os.environ.get('PRC_EUROCONTROL_DIR', DATA_ROOT / 'external' / 'aiu_csv'))
 
 
 def ensure(*paths):

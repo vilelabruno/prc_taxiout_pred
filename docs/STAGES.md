@@ -16,7 +16,8 @@ Every stage reads and writes under the locations in `prc/paths.py`.
 | `v53` | composes the layer outputs into the pre-stack prediction | outputs of `layers`, `otimista` |
 | `stack` | applies the reduced stack combiner | member table, `perm_coefs_nonets.pkl` |
 | `stack_full` | builds the member table, the neural networks and the MLP, fits the combiners, applies the full stack | all member inputs |
-| `espera` | specialists and LIRF rules, final file | `pre_espera_final.parquet`, 2025 training data |
+| `espera` | specialists and LIRF rules | `pre_espera_final.parquet`, 2025 training data |
+| `daily` | fits `artifacts/daily/params.json` for the daily layer | `artifacts/oof/daily/oof_2025.npz`, `training_2025-*.parquet`, daily delay files |
 
 ## Entry points
 
@@ -62,7 +63,8 @@ python -m prc.espera_rot.lirf_train
 python -m prc.espera_rot.predict --pred artifacts/pre_espera_final.parquet --out artifacts/espera_final.parquet --months 1,2,6,7
 python -m prc.espera_rot.lirf_predict --pred artifacts/espera_final.parquet --out artifacts/lirf_final.parquet --months 1,2,6,7
 python -m prc.layers.lirf_night_rule --pred artifacts/lirf_final.parquet --out artifacts/night_final.parquet --months 2,6 --dose 0.5
-python -m prc.layers.lirf_eco_rule --pred artifacts/night_final.parquet --out artifacts/submission_final.parquet --months 1,2,6,7 --lo-h 6 --hi-h 14 --dose 0.5
+python -m prc.layers.lirf_eco_rule --pred artifacts/night_final.parquet --out artifacts/submission_final.parquet --months 1,2,6,7 --lo-h 6 --hi-h inf --dose 0.4
+python -m prc.daily.cli --fit --oof artifacts/oof/daily/oof_2025.npz --oof-col pred --dither
 python -m prc.stack.nets.seq prc/stack/nets/configs.json --device cpu
 python -m prc.stack.mlp.build_unified
 python -m prc.stack.mlp.train device=cpu
@@ -97,8 +99,24 @@ python -m prc.espera_rot.lirf_train
 python -m prc.espera_rot.predict --pred artifacts/pre_espera_final.parquet --out artifacts/espera_final.parquet --months 1,2,6,7
 python -m prc.espera_rot.lirf_predict --pred artifacts/espera_final.parquet --out artifacts/lirf_final.parquet --months 1,2,6,7
 python -m prc.layers.lirf_night_rule --pred artifacts/lirf_final.parquet --out artifacts/night_final.parquet --months 2,6 --dose 0.5
-python -m prc.layers.lirf_eco_rule --pred artifacts/night_final.parquet --out artifacts/submission_final.parquet --months 1,2,6,7 --lo-h 6 --hi-h 14 --dose 0.5
+python -m prc.layers.lirf_eco_rule --pred artifacts/night_final.parquet --out artifacts/submission_final.parquet --months 1,2,6,7 --lo-h 6 --hi-h inf --dose 0.4
+python -m prc.daily.cli --apply --pred artifacts/submission_final.parquet --out artifacts/submission_daily.parquet --months 1,2,6,7 --dither
 ```
+
+## Daily layer (`prc/daily`)
+
+`predict.py daily` applies `prc.daily.cli --apply` to `artifacts/submission_final.parquet` and writes the final file
+`artifacts/submission_daily.parquet`. `train.py daily` fits the parameters from the out-of-fold 2025 predictions.
+
+| Item | Value |
+|---|---|
+| Input | `all_pre_departure_delays_{2025,2026}.csv` under `PRC_EUROCONTROL_DIR` (default `data/external/aiu_csv`); key is airport plus UTC date of the departure; `K = 60 * DLY_ALL_PRE_2` |
+| Airports other than LIRF | daily posterior update of every departure, dose 1 |
+| LIRF | same update, only for departures with `MVT - SCHED <= 21600 s`, correction clipped to +-1000 s, dose 0.5; departures with `MVT - SCHED > 21600 s` are unchanged |
+| Floor | 60 s, applied only to rows the layer changes |
+| Rows without a daily value | unchanged |
+| `--dither` | adds 48 s^2 per contributing departure to the variance of `K` when applying, and perturbs `MVT - SCHED` by uniform +-12 s (seed 0) when fitting |
+| Constants | `prc/daily/constants.py` |
 
 ## Validation stages (`scripts/cv.py`)
 
@@ -112,7 +130,7 @@ specialists and reports RMSE before/after for doses 0.25, 0.5 and 0.75.
 | Rule | Condition | Treatment |
 |---|---|---|
 | `lirf_night_rule` | LIRF departure, no AOBT, local (Europe/Rome) time of SCHED between 00:00 and 04:00, MVT-SCHED > 1 h, February and June only | 50/50 blend of the model output and `MVT - SCHED` |
-| `lirf_eco_rule` | LIRF departure, no AOBT, 6 h <= MVT-SCHED <= 14 h, all four months | 50/50 blend of the model output and `MVT - SCHED` |
+| `lirf_eco_rule` | LIRF departure, no AOBT, MVT-SCHED >= 6 h, all four months | model output moved 40% of the way to `MVT - SCHED` |
 
 `MVT - SCHED` is `MVT_TIME_UTC_mvt - SCHED_TIME_UTC_mvt` in seconds, computed in UTC. In 2025, among flights where the block
 time equals the schedule, `BLOCK - SCHED` has median 0 s, mean -0.39 s and standard deviation 4.3 s, so the quantity is used
@@ -129,4 +147,5 @@ without an offset.
 | LIRF physical layer dose | 0.5 |
 | Layer-D second-stage term dose | 1.149 |
 | Stack safety cut | 1.5x ratio of correction RMS (2026 / OOF), per airport and month; LIRF and LEMD in January fall back |
-| Post-processing rule doses | 0.5 |
+| Post-processing rule doses | night rule 0.5, eco rule 0.4 (threshold 21600 s, no upper bound) |
+| Daily layer | non-LIRF dose 1, LIRF dose 0.5 with +-1000 s clip, floor 60 s |
