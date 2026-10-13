@@ -26,7 +26,10 @@ version (models, out-of-fold predictions, per-component predictions). Large tabu
 5. **Post-processing rules** (`prc/layers/lirf_night_rule.py`, `prc/layers/lirf_eco_rule.py`): fixed rules for LIRF departures
    without an actual off-block time, each moving the model output a fixed fraction of the way to `MVT - SCHED`.
 6. **Daily layer** (`prc/daily`): a per-airport, per-day posterior update that uses the published daily total of
-   pre-departure delay as a constraint on the departures of that day.
+   pre-departure delay as a constraint on the departures of that day, followed by a second pass for LIRF
+   (`prc/daily/second_pass.py`).
+7. **Regime layer** (`prc/regime`): LightGBM increment fitted on the out-of-fold residual from runway- and airport-level
+   neighbourhood aggregates over 15 to 120 minute windows.
 
 ## Repository layout
 
@@ -39,7 +42,8 @@ prc/layers              level-2 layers, layer composition, LIRF rules
 prc/otimista            layer D: contexts, leave-month-out validation, application, H_base members
 prc/stack               member table, combiners, neural population, final stack application
 prc/espera_rot          residual specialists (all airports, and LIRF only)
-prc/daily               daily layer: parameter fit, application, constants
+prc/daily               daily layer: parameter fit, application, constants, LIRF second pass
+prc/regime              regime layer: neighbourhood features, fit, application
 prc/blend.py            v36 blend of the two bases
 prc/compose.py          assembly of the final pre-specialist prediction for the four months
 prc/terms.py            builds delta terms between two versions of a component
@@ -82,13 +86,13 @@ The code reads labels only from the 2025 training files. The ranking files are r
 All entry points accept `--dry-run`, which prints the commands without executing them.
 
 ```
-python scripts/train.py features basea baseb blend layers otimista v53 stack espera daily
+python scripts/train.py features basea baseb blend layers otimista v53 stack espera daily regime
 python scripts/cv.py basea baseb layers otimista stack espera
-python scripts/predict.py compose espera daily
+python scripts/predict.py compose espera daily second_pass regime
 ```
 
 `python scripts/<entry>.py all` runs every stage of that entry point. Stage definitions and the exact commands are in
-`docs/STAGES.md`. The final file is `artifacts/submission_daily.parquet`, with columns `MVT_ID_mvt` and `TAXITIME_SEC_mvt`.
+`docs/STAGES.md`. The final file is `artifacts/submission_regime.parquet`, with columns `MVT_ID_mvt` and `TAXITIME_SEC_mvt`.
 
 ## Months and composition
 
@@ -108,4 +112,4 @@ chain only.
 - `data/processed/adsb_surface/` daily ADS-B surface extracts
 - `data/external/aiu_csv/all_pre_departure_delays_{2025,2026}.csv`
 - `artifacts/reference/` and `artifacts/stack_inputs/` parquet files read by `predict.py compose`
-- `artifacts/oof/daily/oof_2025.npz` and `artifacts/daily/params.json` for the daily layer (`train.py daily` regenerates the parameters)
+- `artifacts/oof/daily/oof_2025.npz`, `artifacts/daily/params.json` and `artifacts/models/regime/` for the daily and regime layers (`train.py daily regime` regenerates them)

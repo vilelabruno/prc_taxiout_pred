@@ -10,6 +10,7 @@ Files under `artifacts/`, with size and SHA-256. Groups:
 | `artifacts/models/stack` | 32 | 176.1 |
 | `artifacts/daily` | 1 | 0.0 |
 | `artifacts/oof/daily` | 1 | 1.9 |
+| `artifacts/models/regime` | 7 | 2.6 |
 | `artifacts/oof/hbase` | 5 | 13.8 |
 | `artifacts/oof/mlp_member` | 1 | 32.5 |
 | `artifacts/oof/stack` | 1 | 2.8 |
@@ -101,3 +102,10 @@ Files under `artifacts/`, with size and SHA-256. Groups:
 | `artifacts/reference/stack_old/perm_oof_topk_mlp1.npy` | 2755480 | `da0351d6f91ffbcdb226b17f7c14a3701a5dc28a70eb05ac4d6b761ca9b0d60c` |
 | `artifacts/daily/params.json` | 791 | `613301b7fa68e6a30cccc5efdea42faec28f3dd992564878c343840f3122dcb9` |
 | `artifacts/oof/daily/oof_2025.npz` | 1926964 | `f7c0c4b30d599890fbbcf1a4a8672f83e5342bfb6d73e1e07e656a02fd0f7739` |
+| `artifacts/models/regime/base_11.txt` | 449961 | `217e1829439b255471443ce05a432a9a20b7b6767f7517643efc96bcbd619cc0` |
+| `artifacts/models/regime/base_23.txt` | 449066 | `c8053a73084faf10f7b1d858792c420ccaf00d095be7739d422653c672518319` |
+| `artifacts/models/regime/base_37.txt` | 449805 | `016852e2348179bf2b174b54d3b996d4cbbcef6d34e7057d222a1ae03839faa0` |
+| `artifacts/models/regime/meta.json` | 780 | `bff53bb0a46f9a8198eb8e38ddd5a6778dbb8db020f27ddd1cd939d157209796` |
+| `artifacts/models/regime/wide_11.txt` | 469132 | `b8ee462e2ecf9746450f80c9844eb9e33fe0ba2cf13b92d3a52ad89748093679` |
+| `artifacts/models/regime/wide_23.txt` | 469270 | `c3afdaf94849e95b48225ff8a57d477697d1dd67fa69beea82eddfc054fba050` |
+| `artifacts/models/regime/wide_37.txt` | 469086 | `4c3cd3b0b4b86e49b73e438bff875d0386b7f2395b2f44574b2add8cbee126d4` |

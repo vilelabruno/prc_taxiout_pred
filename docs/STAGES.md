@@ -18,6 +18,7 @@ Every stage reads and writes under the locations in `prc/paths.py`.
 | `stack_full` | builds the member table, the neural networks and the MLP, fits the combiners, applies the full stack | all member inputs |
 | `espera` | specialists and LIRF rules | `pre_espera_final.parquet`, 2025 training data |
 | `daily` | fits `artifacts/daily/params.json` for the daily layer | `artifacts/oof/daily/oof_2025.npz`, `training_2025-*.parquet`, daily delay files |
+| `regime` | fits the regime-layer models under `artifacts/models/regime/` | `artifacts/oof/daily/oof_2025.npz`, `training_2025-01*` and `training_2025-07*` |
 
 ## Entry points
 
@@ -65,6 +66,7 @@ python -m prc.espera_rot.lirf_predict --pred artifacts/espera_final.parquet --ou
 python -m prc.layers.lirf_night_rule --pred artifacts/lirf_final.parquet --out artifacts/night_final.parquet --months 2,6 --dose 0.5
 python -m prc.layers.lirf_eco_rule --pred artifacts/night_final.parquet --out artifacts/submission_final.parquet --months 1,2,6,7 --lo-h 6 --hi-h inf --dose 0.4
 python -m prc.daily.cli --fit --oof artifacts/oof/daily/oof_2025.npz --oof-col pred --dither
+python -m prc.regime.cli --fit --oof artifacts/oof/daily/oof_2025.npz --oof-col pred
 python -m prc.stack.nets.seq prc/stack/nets/configs.json --device cpu
 python -m prc.stack.mlp.build_unified
 python -m prc.stack.mlp.train device=cpu
@@ -101,12 +103,15 @@ python -m prc.espera_rot.lirf_predict --pred artifacts/espera_final.parquet --ou
 python -m prc.layers.lirf_night_rule --pred artifacts/lirf_final.parquet --out artifacts/night_final.parquet --months 2,6 --dose 0.5
 python -m prc.layers.lirf_eco_rule --pred artifacts/night_final.parquet --out artifacts/submission_final.parquet --months 1,2,6,7 --lo-h 6 --hi-h inf --dose 0.4
 python -m prc.daily.cli --apply --pred artifacts/submission_final.parquet --out artifacts/submission_daily.parquet --months 1,2,6,7 --dither
+python -m prc.daily.second_pass --pred artifacts/submission_daily.parquet --out artifacts/submission_pass2.parquet --months 1,2,6,7
+python -m prc.regime.cli --apply --pred artifacts/submission_pass2.parquet --out artifacts/submission_regime.parquet --months 1,2,6,7
 ```
 
 ## Daily layer (`prc/daily`)
 
-`predict.py daily` applies `prc.daily.cli --apply` to `artifacts/submission_final.parquet` and writes the final file
-`artifacts/submission_daily.parquet`. `train.py daily` fits the parameters from the out-of-fold 2025 predictions.
+`predict.py daily` applies `prc.daily.cli --apply` to `artifacts/submission_final.parquet` and writes
+`artifacts/submission_daily.parquet`; `predict.py second_pass` and `predict.py regime` then write `artifacts/submission_pass2.parquet` and
+the final file `artifacts/submission_regime.parquet`. `train.py daily` fits the parameters from the out-of-fold 2025 predictions.
 
 | Item | Value |
 |---|---|
@@ -117,6 +122,20 @@ python -m prc.daily.cli --apply --pred artifacts/submission_final.parquet --out 
 | Rows without a daily value | unchanged |
 | `--dither` | adds 48 s^2 per contributing departure to the variance of `K` when applying, and perturbs `MVT - SCHED` by uniform +-12 s (seed 0) when fitting |
 | Constants | `prc/daily/constants.py` |
+
+### LIRF second pass (`prc/daily/second_pass.py`)
+
+For each UTC day and month in `--months`, `z = K - sum(max(0, MVT - SCHED - p))` over LIRF departures with `MVT - SCHED > p`, and
+`b = z / n` with `n` the number of those departures. On days with `|b| >= 60 s`, each of those departures moves by `-1.0 * b`, with a 60 s floor.
+
+### Regime layer (`prc/regime`)
+
+| Item | Value |
+|---|---|
+| Features | per airport and per runway, mean of `AOBT - EOBT`, late share (`AOBT - EOBT > 900 s`), missing-AOBT share and mean `MVT - AOBT` over departures within +-15, 30, 60 and 120 min of the movement, plus departure and arrival counts; own flight excluded |
+| Models | LightGBM, 15 leaves, 300 rounds, three seeds; one model with the neighbourhood features and one without; trained on January and July 2025 residuals `y - oof` |
+| Increment | `0.75 * (wide - narrow)`; zero for EDDM, EHAM and LSZH |
+| Application | `prediction + lambda * increment`, lambda 0.89 in January and July and 0.6 in February and June, 60 s floor on changed rows |
 
 ## Validation stages (`scripts/cv.py`)
 
@@ -149,3 +168,5 @@ without an offset.
 | Stack safety cut | 1.5x ratio of correction RMS (2026 / OOF), per airport and month; LIRF and LEMD in January fall back |
 | Post-processing rule doses | night rule 0.5, eco rule 0.4 (threshold 21600 s, no upper bound) |
 | Daily layer | non-LIRF dose 1, LIRF dose 0.5 with +-1000 s clip, floor 60 s |
+| LIRF second pass | threshold 60 s, scale 1.0, floor 60 s |
+| Regime layer | increment dose 0.75; lambda 0.89 (Jan, Jul), 0.6 (Feb, Jun) |

@@ -105,6 +105,18 @@ def stage_daily(a):
     return [m('prc.daily.cli', '--apply', '--pred', ARTIFACTS / 'submission_final.parquet', '--out', ARTIFACTS / 'submission_daily.parquet', '--months', '1,2,6,7', '--dither')]
 
 
+def stage_regime_fit(a):
+    return [m('prc.regime.cli', '--fit', '--oof', ARTIFACTS / 'oof' / 'daily' / 'oof_2025.npz', '--oof-col', 'pred')]
+
+
+def stage_second_pass(a):
+    return [m('prc.daily.second_pass', '--pred', ARTIFACTS / 'submission_daily.parquet', '--out', ARTIFACTS / 'submission_pass2.parquet', '--months', '1,2,6,7')]
+
+
+def stage_regime(a):
+    return [m('prc.regime.cli', '--apply', '--pred', ARTIFACTS / 'submission_pass2.parquet', '--out', ARTIFACTS / 'submission_regime.parquet', '--months', '1,2,6,7')]
+
+
 def stage_compose(a):
     return [
         m('prc.stack.apply_stack', '--dir', ARTIFACTS / 'reference' / 'stack_old', '--legacy-months', '1,7', '--out', ARTIFACTS / 'reference' / 'stack_old_pred.parquet'),
@@ -140,9 +152,9 @@ def cv_stack(a):
 
 
 TRAIN = {'features': stage_features, 'basea': stage_basea, 'baseb': stage_baseb, 'blend': stage_blend, 'layers': stage_layers,
-         'otimista': stage_otimista, 'v53': stage_v53, 'stack': stage_stack, 'espera': stage_espera, 'stack_full': stage_stack_full, 'daily': stage_daily_fit}
+         'otimista': stage_otimista, 'v53': stage_v53, 'stack': stage_stack, 'espera': stage_espera, 'stack_full': stage_stack_full, 'daily': stage_daily_fit, 'regime': stage_regime_fit}
 CV = {'basea': cv_basea, 'baseb': cv_baseb, 'layers': cv_layers, 'otimista': cv_otimista, 'stack': cv_stack, 'espera': cv_espera}
-PREDICT = {'blend': stage_blend, 'compose': stage_compose, 'espera': stage_espera, 'daily': stage_daily}
+PREDICT = {'blend': stage_blend, 'compose': stage_compose, 'espera': stage_espera, 'daily': stage_daily, 'second_pass': stage_second_pass, 'regime': stage_regime}
 
 
 def run(table, names, args):
