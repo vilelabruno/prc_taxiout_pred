@@ -113,3 +113,33 @@ chain only.
 - `data/external/aiu_csv/all_pre_departure_delays_{2025,2026}.csv`
 - `artifacts/reference/` and `artifacts/stack_inputs/` parquet files read by `predict.py compose`
 - `artifacts/oof/daily/oof_2025.npz`, `artifacts/daily/params.json` and `artifacts/models/regime/` for the daily and regime layers (`train.py daily regime` regenerates them)
+
+## In development
+
+**Reconstructing the CTOT slot window with the airport graph as reference** (branch [`feature/in_dev`](https://github.com/vilelabruno/prc_taxiout_pred/tree/feature/in_dev/in_development); the code of this README's pipeline is unchanged).
+
+Part of the taxi-out error is time spent at the stand that the clocks do not explain. A regulated flight holds at the stand until the slot issued by the Network
+Manager opens and must take off inside a tolerance window of **−5/+10 min around its CTOT**; if it cannot make the window it loses the slot and receives the next free one.
+We reconstruct that window per flight: `ETOT = EOBT + EXOT` with EXOT estimated from the taxiway graph (Dijkstra path, turns, crossings, simulated stand-to-runway movement),
+a runway timeline from ADS-B and movements calibrated so that ≥ 90 % of real departures fall in an open window, a look-back scan from the MVT (`CTOT ∈ [MVT − 10, MVT + 5]` min) that counts
+available, blocked and lost windows, and per-airport weights fitted against the stand hold. As a proxy of the regulation we replicate the dynamic indicators of the paper below.
+
+**Paper:** Mas-Pujol, S., & Delgado, L. (2024). *Prediction of ATFM impact for individual flights: A machine learning approach.* Expert Systems with Applications, 252.
+[doi/ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0957417424010121). Also: EUROCONTROL, *ATFCM Users Manual* ed. 22.1 (slot tolerance window, ETOT, TTOT/TSAT/EXOT).
+
+**Simulated graph (EGLL, largest-error flight of the day, BAW105 on 2025-01-17).** Edges coloured by the block field of the other aircraft taxiing at that instant; blue is the
+route simulated backwards from the MVT to the stand:
+
+![Largest error on the simulated EGLL graph](https://github.com/vilelabruno/prc_taxiout_pred/blob/feature/in_dev/in_development/plots/rev_maior_erro.png?raw=true)
+
+The same flight decomposed: `y` = 1971 s = (MVT − ADS-B anchor) 549 s + apron 62 s + simulated stand→anchor 11 s + a remaining wait of 1349 s that the graph movement does not explain:
+
+![Anchor decomposition for BAW105](https://github.com/vilelabruno/prc_taxiout_pred/blob/feature/in_dev/in_development/plots/rev_ancora_BAW105.png?raw=true)
+
+**A departure fitting a CTOT window (3D).** Real ADS-B climb-out of the same flight (colour = minutes since take-off) crossing a gate in mid-air that stands for the slot window `[CTOT − 5, CTOT + 10]` min; grey is neighbouring traffic:
+
+![BAW105 crossing the CTOT window gate](https://github.com/vilelabruno/prc_taxiout_pred/blob/feature/in_dev/in_development/plots/ctot_gate_3d.png?raw=true)
+
+**Early results** (out-of-fold, hold-out January + July 2025, residual of the champion): the CTOT-window features give −0.17 s [−0.27; −0.08] and the per-airport hold weights a further −0.20 s [−0.29; −0.10] in RMSE
+over the earlier groups; on the ranking set the corresponding layers scored 232.0097 (`v99`) and 231.9696 (`v100`). The gains are small and far from the ~20 s that motivated the work; the failed variants (sky-occupancy grid,
+sky proximity, tail weights and doses) are documented in [`in_development/README.md`](https://github.com/vilelabruno/prc_taxiout_pred/blob/feature/in_dev/in_development/README.md).
