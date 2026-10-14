@@ -1,0 +1,42 @@
+grupos novos: {'Janela_pista': 13, 'Janela_ref': 12, 'CTOT_janela': 33, 'CTOT_norm': 28} | cobertura Janela_obs (voos com trilha própria): 98.8%
+treino 1740626 linhas (10 meses) | holdout 342930 | RMSE base (campeão) 218.469 | RMSE do resíduo de treino 370.1
+T_BASE                                         n= 93 | Δ dose0,25 -1.346 | 0,5 +0.001 | 0,75 +3.990 | 1,0 +10.483 | esperas(0,5) -15.01 (17s)
+T_BJ                                           n=118 | Δ dose0,25 -1.415 | 0,5 -0.037 | 0,75 +4.082 | 1,0 +10.795 | esperas(0,5) -16.67 (19s)
+T_bjc                                          n=151 | Δ dose0,25 -1.496 | 0,5 -0.210 | 0,75 +3.809 | 1,0 +10.418 | esperas(0,5) -16.12 (22s)
+T_pow3                                         n=158 | Δ dose0,25 -1.474 | 0,5 -0.157 | 0,75 +3.903 | 1,0 +10.559 | esperas(0,5) -16.10 (24s)
+T_tailhi                                       n=158 | Δ dose0,25 -1.449 | 0,5 -0.158 | 0,75 +3.825 | 1,0 +10.359 | esperas(0,5) -15.90 (23s)
+T_tail2                                        n=158 | Δ dose0,25 -1.482 | 0,5 -0.198 | 0,75 +3.805 | 1,0 +10.382 | esperas(0,5) -15.98 (24s)
+T_exp                                          n=158 | Δ dose0,25 -1.406 | 0,5 -0.021 | 0,75 +4.103 | 1,0 +10.817 | esperas(0,5) -15.17 (26s)
+T_TODASascaudas                                n=179 | Δ dose0,25 -1.543 | 0,5 -0.270 | 0,75 +3.772 | 1,0 +10.435 | esperas(0,5) -16.40 (26s)
+
+== comparações com IC90 por bootstrap de dias (dose 0.25; Δ negativo = melhor o 1º)
+  BJ (v99) vs BASE                                               -0.071 [-0.162; +0.014]
+  BJ+CTOT_janela vs BJ (v99)                                     -0.078 [-0.163; +0.008]
+  BJC+pow3 vs BJ+CTOT_janela                                     +0.023 [-0.042; +0.080]
+  BJC+tailhi vs BJ+CTOT_janela                                   +0.046 [-0.027; +0.112]
+  BJC+tail2 vs BJ+CTOT_janela                                    +0.014 [-0.068; +0.088]
+  BJC+exp vs BJ+CTOT_janela                                      +0.089 [+0.017; +0.162]
+  BJC+TODAS as caudas vs BJ+CTOT_janela                          -0.047 [-0.142; +0.049]
+  BJC+pow3 vs BJ (v99)                                           -0.055 [-0.129; +0.025]
+  BJC+tailhi vs BJ (v99)                                         -0.032 [-0.097; +0.037]
+  BJC+tail2 vs BJ (v99)                                          -0.063 [-0.152; +0.033]
+  BJC+exp vs BJ (v99)                                            +0.011 [-0.055; +0.078]
+  BJC+TODAS as caudas vs BJ (v99)                                -0.125 [-0.209; -0.045]
+
+== comparações com IC90 por bootstrap de dias (dose 0.5; Δ negativo = melhor o 1º)
+  BJ (v99) vs BASE                                               -0.041 [-0.252; +0.156]
+  BJ+CTOT_janela vs BJ (v99)                                     -0.167 [-0.345; +0.010]
+  BJC+pow3 vs BJ+CTOT_janela                                     +0.054 [-0.084; +0.177]
+  BJC+tailhi vs BJ+CTOT_janela                                   +0.050 [-0.114; +0.201]
+  BJC+tail2 vs BJ+CTOT_janela                                    +0.013 [-0.164; +0.171]
+  BJC+exp vs BJ+CTOT_janela                                      +0.187 [+0.052; +0.328]
+  BJC+TODAS as caudas vs BJ+CTOT_janela                          -0.060 [-0.261; +0.142]
+  BJC+pow3 vs BJ (v99)                                           -0.113 [-0.274; +0.059]
+  BJC+tailhi vs BJ (v99)                                         -0.117 [-0.271; +0.038]
+  BJC+tail2 vs BJ (v99)                                          -0.155 [-0.359; +0.056]
+  BJC+exp vs BJ (v99)                                            +0.019 [-0.125; +0.158]
+  BJC+TODAS as caudas vs BJ (v99)                                -0.227 [-0.410; -0.058]
+
+== por aeroporto (dose 0,5): (BJ+CT+CN_v2) − (BJ+CT)
+{'EDDF': 0.003, 'EDDM': 0.004, 'EGLL': 0.008, 'EHAM': -0.003, 'LEBL': 0.004, 'LEMD': 0.009, 'LFPG': -0.011, 'LIRF': -0.055, 'LSZH': 0.0, 'LTFM': -0.019}
+FIM

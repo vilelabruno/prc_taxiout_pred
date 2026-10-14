@@ -1,0 +1,55 @@
+grupos novos: {'Janela_obs': 26, 'Janela_P': 11, 'METAR_sync': 24, 'Carga_pista': 13} | cobertura Janela_obs (voos com trilha própria): 14.9%
+treino 1740626 linhas (10 meses) | holdout 342930 | RMSE base (campeão) 218.469 | RMSE do resíduo de treino 370.1
+W_CLK                                          n= 10 | Δ dose0,25 -0.229 | 0,5 +1.143 | 0,75 +4.086 | 1,0 +8.540 | esperas(0,5) -9.15 (6s)
+W_BASE                                         n= 93 | Δ dose0,25 -1.346 | 0,5 +0.001 | 0,75 +3.990 | 1,0 +10.483 | esperas(0,5) -15.01 (13s)
+W_ALLN                                         n=167 | Δ dose0,25 -1.410 | 0,5 -0.067 | 0,75 +3.980 | 1,0 +10.587 | esperas(0,5) -14.55 (23s)
+W_so_Janela_obs                                n= 36 | Δ dose0,25 -0.257 | 0,5 +1.047 | 0,75 +3.883 | 1,0 +8.194 | esperas(0,5) -9.57 (8s)
+W_so_Janela_P                                  n= 21 | Δ dose0,25 -0.223 | 0,5 +1.284 | 0,75 +4.485 | 1,0 +9.310 | esperas(0,5) -9.89 (7s)
+W_so_METAR_sync                                n= 34 | Δ dose0,25 -0.321 | 0,5 +0.829 | 0,75 +3.428 | 1,0 +7.426 | esperas(0,5) -9.01 (8s)
+W_so_Carga_pista                               n= 23 | Δ dose0,25 -0.189 | 0,5 +1.508 | 0,75 +5.049 | 1,0 +10.348 | esperas(0,5) -9.94 (8s)
+W_base_Janela_obs                              n=119 | Δ dose0,25 -1.417 | 0,5 -0.110 | 0,75 +3.873 | 1,0 +10.393 | esperas(0,5) -15.06 (20s)
+W_base_Janela_P                                n=104 | Δ dose0,25 -1.416 | 0,5 -0.037 | 0,75 +4.087 | 1,0 +10.806 | esperas(0,5) -15.83 (16s)
+W_base_METAR_sync                              n=117 | Δ dose0,25 -1.424 | 0,5 -0.012 | 0,75 +4.180 | 1,0 +11.002 | esperas(0,5) -14.89 (16s)
+W_base_Carga_pista                             n=106 | Δ dose0,25 -1.460 | 0,5 -0.161 | 0,75 +3.849 | 1,0 +10.429 | esperas(0,5) -15.76 (15s)
+W_sem_Janela_obs                               n=141 | Δ dose0,25 -1.332 | 0,5 +0.122 | 0,75 +4.309 | 1,0 +11.078 | esperas(0,5) -14.72 (18s)
+W_sem_Janela_P                                 n=156 | Δ dose0,25 -1.325 | 0,5 +0.078 | 0,75 +4.158 | 1,0 +10.771 | esperas(0,5) -14.23 (22s)
+W_sem_METAR_sync                               n=143 | Δ dose0,25 -1.348 | 0,5 +0.020 | 0,75 +4.054 | 1,0 +10.614 | esperas(0,5) -15.52 (22s)
+W_sem_Carga_pista                              n=154 | Δ dose0,25 -1.316 | 0,5 +0.115 | 0,75 +4.240 | 1,0 +10.915 | esperas(0,5) -14.49 (24s)
+
+== comparações com IC90 por bootstrap de dias (dose 0.25; Δ negativo = melhor o 1º)
+  BASE vs CLK                                                    -1.109 [-1.474; -0.774]
+  BASE+novos vs BASE                                             -0.063 [-0.210; +0.085]
+  CLK+Janela_obs vs CLK                                          -0.028 [-0.063; +0.006]
+  CLK+Janela_P vs CLK                                            +0.011 [-0.101; +0.117]
+  CLK+METAR_sync vs CLK                                          -0.086 [-0.309; +0.125]
+  CLK+Carga_pista vs CLK                                         +0.042 [-0.083; +0.160]
+  BASE+Janela_obs vs BASE                                        -0.072 [-0.140; -0.000]
+  BASE+Janela_P vs BASE                                          -0.072 [-0.145; -0.006]
+  BASE+METAR_sync vs BASE                                        -0.075 [-0.192; +0.037]
+  BASE+Carga_pista vs BASE                                       -0.115 [-0.235; -0.001]
+  BASE+novos sem Janela_obs vs BASE+novos                        +0.076 [-0.015; +0.160]
+  BASE+novos sem Janela_P vs BASE+novos                          +0.083 [+0.001; +0.170]
+  BASE+novos sem METAR_sync vs BASE+novos                        +0.060 [-0.035; +0.160]
+  BASE+novos sem Carga_pista vs BASE+novos                       +0.094 [+0.010; +0.181]
+
+== comparações com IC90 por bootstrap de dias (dose 0.5; Δ negativo = melhor o 1º)
+  BASE vs CLK                                                    -1.125 [-1.843; -0.452]
+  BASE+novos vs BASE                                             -0.063 [-0.393; +0.267]
+  CLK+Janela_obs vs CLK                                          -0.096 [-0.177; -0.022]
+  CLK+Janela_P vs CLK                                            +0.151 [-0.079; +0.376]
+  CLK+METAR_sync vs CLK                                          -0.296 [-0.826; +0.199]
+  CLK+Carga_pista vs CLK                                         +0.372 [+0.102; +0.645]
+  BASE+Janela_obs vs BASE                                        -0.113 [-0.249; +0.032]
+  BASE+Janela_P vs BASE                                          -0.042 [-0.167; +0.084]
+  BASE+METAR_sync vs BASE                                        -0.006 [-0.280; +0.264]
+  BASE+Carga_pista vs BASE                                       -0.162 [-0.435; +0.105]
+  BASE+novos sem Janela_obs vs BASE+novos                        +0.185 [-0.015; +0.373]
+  BASE+novos sem Janela_P vs BASE+novos                          +0.141 [-0.033; +0.320]
+  BASE+novos sem METAR_sync vs BASE+novos                        +0.082 [-0.114; +0.285]
+  BASE+novos sem Carga_pista vs BASE+novos                       +0.182 [+0.015; +0.360]
+
+== por aeroporto (Δ RMSE atribuível, dose 0,5): BASE+novos − BASE
+{'EDDF': 0.054, 'EDDM': 0.013, 'EGLL': 0.085, 'EHAM': 0.036, 'LEBL': -0.008, 'LEMD': -0.039, 'LFPG': -0.026, 'LIRF': -0.295, 'LSZH': 0.015, 'LTFM': 0.097}
+  RMSE do resíduo (dose 0,5) nos voos COM trilha própria (49787): 203.269 | base sem correção 199.270
+  RMSE do resíduo (dose 0,5) nos voos COM trilha própria (49787): 203.644 | base sem correção 199.270
+FIM

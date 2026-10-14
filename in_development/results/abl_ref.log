@@ -1,0 +1,37 @@
+grupos novos: {'Janela_pista': 13, 'Janela_ref': 12} | cobertura Janela_obs (voos com trilha própria): 98.8%
+treino 1740626 linhas (10 meses) | holdout 342930 | RMSE base (campeão) 218.469 | RMSE do resíduo de treino 370.1
+W_CLK                                          n= 10 | Δ dose0,25 -0.229 | 0,5 +1.143 | 0,75 +4.086 | 1,0 +8.540 | esperas(0,5) -9.15 (8s)
+W_BASE                                         n= 93 | Δ dose0,25 -1.346 | 0,5 +0.001 | 0,75 +3.990 | 1,0 +10.483 | esperas(0,5) -15.01 (16s)
+W_ALLN                                         n=118 | Δ dose0,25 -1.415 | 0,5 -0.037 | 0,75 +4.082 | 1,0 +10.795 | esperas(0,5) -16.67 (16s)
+F_so_Janela_pista                              n= 23 | Δ dose0,25 -0.155 | 0,5 +1.497 | 0,75 +4.914 | 1,0 +10.019 | esperas(0,5) -10.61 (8s)
+F_so_Janela_ref                                n= 22 | Δ dose0,25 -0.240 | 0,5 +1.219 | 0,75 +4.341 | 1,0 +9.060 | esperas(0,5) -9.68 (8s)
+F_base_Janela_pista                            n=106 | Δ dose0,25 -1.429 | 0,5 -0.073 | 0,75 +4.018 | 1,0 +10.697 | esperas(0,5) -15.36 (16s)
+F_base_Janela_ref                              n=105 | Δ dose0,25 -1.474 | 0,5 -0.152 | 0,75 +3.917 | 1,0 +10.585 | esperas(0,5) -15.83 (19s)
+F_sem_Janela_pista                             n=105 | Δ dose0,25 -1.474 | 0,5 -0.152 | 0,75 +3.917 | 1,0 +10.585 | esperas(0,5) -15.83 (17s)
+F_sem_Janela_ref                               n=106 | Δ dose0,25 -1.429 | 0,5 -0.073 | 0,75 +4.018 | 1,0 +10.697 | esperas(0,5) -15.36 (21s)
+
+== comparações com IC90 por bootstrap de dias (dose 0.25; Δ negativo = melhor o 1º)
+  BASE vs CLK                                                    -1.109 [-1.474; -0.774]
+  BASE+novos vs BASE                                             -0.071 [-0.162; +0.014]
+  CLK+Janela_pista vs CLK                                        +0.077 [-0.014; +0.163]
+  CLK+Janela_ref vs CLK                                          -0.012 [-0.165; +0.114]
+  BASE+Janela_pista vs BASE                                      -0.084 [-0.173; +0.005]
+  BASE+Janela_ref vs BASE                                        -0.130 [-0.216; -0.051]
+  BASE+novos sem Janela_pista vs BASE+novos                      -0.059 [-0.129; +0.012]
+  BASE+novos sem Janela_ref vs BASE+novos                        -0.013 [-0.096; +0.067]
+
+== comparações com IC90 por bootstrap de dias (dose 0.5; Δ negativo = melhor o 1º)
+  BASE vs CLK                                                    -1.125 [-1.843; -0.452]
+  BASE+novos vs BASE                                             -0.041 [-0.252; +0.156]
+  CLK+Janela_pista vs CLK                                        +0.361 [+0.181; +0.536]
+  CLK+Janela_ref vs CLK                                          +0.073 [-0.363; +0.414]
+  BASE+Janela_pista vs BASE                                      -0.076 [-0.299; +0.154]
+  BASE+Janela_ref vs BASE                                        -0.158 [-0.382; +0.047]
+  BASE+novos sem Janela_pista vs BASE+novos                      -0.117 [-0.278; +0.053]
+  BASE+novos sem Janela_ref vs BASE+novos                        -0.034 [-0.237; +0.148]
+
+== por aeroporto (Δ RMSE atribuível, dose 0,5): BASE+novos − BASE
+{'EDDF': 0.016, 'EDDM': 0.026, 'EGLL': 0.036, 'EHAM': 0.002, 'LEBL': 0.014, 'LEMD': -0.028, 'LFPG': -0.003, 'LIRF': -0.181, 'LSZH': 0.004, 'LTFM': 0.076}
+  RMSE do resíduo (dose 0,5) nos voos COM trilha própria (264606): 194.626 | base sem correção 194.897
+  RMSE do resíduo (dose 0,5) nos voos COM trilha própria (264606): 194.677 | base sem correção 194.897
+FIM

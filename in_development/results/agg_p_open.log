@@ -1,0 +1,13 @@
+voos com trilha própria 310252 | aeroportos {'LFPG': 43339, 'EGLL': 42691, 'EHAM': 39663, 'EDDF': 37841, 'LEMD': 35416, 'LEBL': 34018, 'LSZH': 30288, 'EDDM': 27595, 'LIRF': 17555, 'LTFM': 1846}
+linhas de treino do P_open 3102520 | fração aberta 0.52
+treinando P_open (hold-out jan/jul usa só meses de treino; meses de treino por 5 folds de dias)...
+AUC do P_open no holdout (jan/jul, voos com trilha): 0.754
+  AUC só d<0 0.747
+  AUC só d>0 0.765
+/private/tmp/claude-502/-Users-bruno-quirino-latam-com-Desktop-bruno-Projetos-prc-data-challenge/5e41970f-79c3-434a-8d98-364545fe860d/scratchpad/prox/agg_windows.py:67: Pandas4Warning: Starting with pandas version 4.0 all arguments of mean will be keyword-only.
+  P['p_open_pre_mean']=P[pre].mean(1); P['p_open_pre_min']=P[pre].min(1); P['p_open_post_mean']=P[post].mean(1); P['p_open_gap']=P.p_open_post_mean-P.p_open_pre_mean
+/private/tmp/claude-502/-Users-bruno-quirino-latam-com-Desktop-bruno-Projetos-prc-data-challenge/5e41970f-79c3-434a-8d98-364545fe860d/scratchpad/prox/agg_windows.py:67: Pandas4Warning: Starting with pandas version 4.0 all arguments of min will be keyword-only.
+  P['p_open_pre_mean']=P[pre].mean(1); P['p_open_pre_min']=P[pre].min(1); P['p_open_post_mean']=P[post].mean(1); P['p_open_gap']=P.p_open_post_mean-P.p_open_pre_mean
+/private/tmp/claude-502/-Users-bruno-quirino-latam-com-Desktop-bruno-Projetos-prc-data-challenge/5e41970f-79c3-434a-8d98-364545fe860d/scratchpad/prox/agg_windows.py:67: Pandas4Warning: Starting with pandas version 4.0 all arguments of mean will be keyword-only.
+  P['p_open_pre_mean']=P[pre].mean(1); P['p_open_pre_min']=P[pre].min(1); P['p_open_post_mean']=P[post].mean(1); P['p_open_gap']=P.p_open_post_mean-P.p_open_pre_mean
+ok (2085047, 75) {'Janela_obs': 26, 'Janela_P': 11, 'METAR_sync': 24, 'Carga_pista': 13}
