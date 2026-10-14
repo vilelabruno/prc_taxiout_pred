@@ -141,5 +141,5 @@ The same flight decomposed: `y` = 1971 s = (MVT − ADS-B anchor) 549 s + apron 
 ![BAW105 crossing the CTOT window gate](https://github.com/vilelabruno/prc_taxiout_pred/blob/feature/in_dev/in_development/plots/ctot_gate_3d.png?raw=true)
 
 **Early results** (out-of-fold, hold-out January + July 2025, residual of the champion): the CTOT-window features give −0.17 s [−0.27; −0.08] and the per-airport hold weights a further −0.20 s [−0.29; −0.10] in RMSE
-over the earlier groups; on the ranking set the corresponding layers scored 232.0097 (`v99`) and 231.9696 (`v100`). The gains are small and far from the ~20 s that motivated the work; the failed variants (sky-occupancy grid,
-sky proximity, tail weights and doses) are documented in [`in_development/README.md`](https://github.com/vilelabruno/prc_taxiout_pred/blob/feature/in_dev/in_development/README.md).
+over the earlier groups. The gains are small; the variants that did not help (sky-occupancy grid, sky proximity, tail weights and doses) are documented in
+[`in_development/README.md`](https://github.com/vilelabruno/prc_taxiout_pred/blob/feature/in_dev/in_development/README.md).
